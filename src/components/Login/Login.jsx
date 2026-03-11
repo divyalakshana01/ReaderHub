@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
@@ -66,7 +67,7 @@ const Login = () => {
                 </div>
 
                 <p className="signup-prompt">
-                    Don't have an account? <a href="/signup">Create one!</a>
+                    Don't have an account? <Link to="/signup">Create one!</Link>
                 </p>
             </main>
         </div>

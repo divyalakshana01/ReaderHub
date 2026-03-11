@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Signup.css';
+import { Link } from 'react-router-dom';
 
 const Signup = () => {
     const [userData, setUserData] = useState({
@@ -72,7 +73,7 @@ const Signup = () => {
                 </form>
 
                 <p className="footer-text">
-                    Already have an account? <a href="/login">Log in!</a>
+                    Already have an account? <Link to="/login">Log in!</Link>
                 </p>
             </main>
         </div>
