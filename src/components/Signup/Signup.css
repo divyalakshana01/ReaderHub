@@ -1,0 +1,7 @@
+/* Signup.css */
+@import '../Login/Login.css';
+
+/* Any specific adjustments for the Signup page go here */
+.login-card h2 {
+    margin-bottom: 1.5rem; /* Slightly tighter for more fields */
+}

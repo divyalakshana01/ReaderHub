@@ -1,0 +1,87 @@
+/* LoginPage.css */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*background-color: #f9f7f2; /* Creamy paper color */
+  position: relative;
+  font-family: 'Georgia', serif;
+}
+
+/* The watermark logo from your image */
+.watermark {
+  position: absolute;
+  top: 15%;
+  font-size: clamp(5rem, 15vw, 12rem);
+  font-weight: 900;
+  color: #f0ede6; /* Very subtle against the cream */
+  z-index: 0;
+  user-select: none;
+}
+
+.login-card {
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 3rem 2.5rem;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #1a1a1a;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 1.2rem;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box; /* Ensures padding doesn't break width */
+}
+
+/* The "Library Green" Button */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #2f4f4f; /* Library Green */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.login-button:hover {
+  background-color: #263e3e;
+}
+
+.footer-text {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.footer-text a {
+  color: #1a1a1a;
+  font-weight: bold;
+  text-decoration: none;
+}
