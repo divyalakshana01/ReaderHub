@@ -1,0 +1,72 @@
+/* Variables for easy switching */
+.light-mode {
+    --bg-color: #fdfaf5; /* Creamy background from image */
+    --text-main: #1a1a1a;
+    --text-muted: #888;
+    --input-border: #ddd;
+    --card-bg: #eef3f2;
+}
+
+.dark-mode {
+    --bg-color: #1a1a1a;
+    --text-main: #ffffff;
+    --text-muted: #aaa;
+    --input-border: #444;
+    --card-bg: #2d2d2d;
+}
+
+.profile-container {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 50px;
+    transition: all 0.3s ease;
+    margin-left: 150px;
+}
+
+/* Header */
+.profile-header { text-align: center; margin-bottom: 40px; }
+.avatar-wrapper { position: relative; display: inline-block; }
+.profile-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; }
+.edit-btn-float {
+    position: absolute; bottom: 0; right: -5px;
+    background: white; border: none; border-radius: 50%;
+    padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer;
+}
+
+/* Inputs */
+.section-title { font-family: 'Playfair Display', serif; margin-bottom: 15px; }
+.field-group { margin-bottom: 25px; max-width: 450px; }
+.field-group label { text-align: left var(--text-muted); font-size: 14px; display: block; }
+.input-row { 
+    display: flex; align-items: center; 
+    border-bottom: 1px solid var(--input-border);
+    padding: 8px 0;
+}
+.input-row input { 
+    flex: 1; border: none; background: transparent; 
+    color: var(--text-main); font-size: 18px; outline: none;
+}
+
+/* Theme Selector */
+.theme-cards { display: flex; gap: 20px; }
+.theme-card { cursor: pointer; text-align: center; }
+.preview-box {
+    width: 130px; height: 85px; border: 2px solid transparent;
+    border-radius: 8px; margin-bottom: 8px; position: relative;
+    display: flex; overflow: hidden; background: white;
+}
+.theme-card.active .preview-box { border-color: #2d5a52; }
+.p-sidebar { width: 30%; background: #2d5a52; height: 100%; }
+.dark-preview .p-sidebar { background: #1e3d37; }
+.dark-preview { background: #555 !important; }
+.check-icon { position: absolute; top: 5px; right: 5px; color: #2d5a52; }
+
+/* Milestones */
+.milestone-grid { display: flex; gap: 15px; max-width: 600px; }
+.m-card {
+    background: var(--card-bg); padding: 25px;
+    border-radius: 12px; flex: 1; text-align: center;
+}
+.m-value { display: block; font-size: 24px; font-weight: bold; color: #2d5a52; }
+.m-label { font-size: 12px; color: var(--text-muted); }

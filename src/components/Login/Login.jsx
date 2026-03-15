@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
+    const navigate = useNavigate();
+
     const [credentials, setCredentials] = useState({
         email: '',
         password: '',
@@ -16,6 +19,8 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Data ready for your API teammate:", credentials);
+
+        navigate('/home');
     };
 
     return (
@@ -69,8 +74,8 @@ const Login = () => {
                 <p className="signup-prompt">
                     Don't have an account? <Link to="/signup">Create one!</Link>
                 </p>
-            </main>
-        </div>
+            </main>                            
+        </div>        
     );
 };
 

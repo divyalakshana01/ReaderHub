@@ -1,0 +1,93 @@
+.library-page {
+    padding: 40px;
+    background-color: #fdfaf5; /* Cream background from images */
+    min-height: 100vh;
+    min-width: 90vw;
+    margin-left: 150px;
+}
+
+.library-header { 
+    margin-bottom: 40px;
+    text-align: left;
+}
+.library-header h1 { font-family: 'Playfair Display', serif; margin-bottom: 10px; }
+
+.search-bar-library {
+    max-width: 400px;
+    border-bottom: 1px solid #ddd;
+}
+.search-bar-library input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 10px 0;
+    font-size: 1rem;
+    outline: none;
+}
+
+.library-status-section { 
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+/* Status Labels (Reading, To Read, etc.) */
+.status-label {
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: white;
+    margin-bottom: 15px;
+    font-family: sans-serif;
+    text-align: left; /* Aligns the text to the left */
+    
+}
+.status-label.reading { background-color: #2d5a27; } /* Teal from sidebar */
+.status-label.to-read { background-color: #8c6239; } /* Brown */
+.status-label.completed { background-color: #c4a737; } /* Gold/Yellow */
+
+/* Book Cards & Grid */
+.book-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+}
+
+.book-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.library-book-cover {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Icons on Cards */
+.book-card-header {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.icon-action { cursor: pointer; font-size: 1rem; }
+.icon-action.add { color: #1a1a1a; }
+.icon-action.delete { color: #cc0000; }
+.icon-muted { color: #888; }
+
+/* Completed section special styling */
+.empty-completed {
+    background-color: #FFFFFF;
+    height: 190px;
+}
