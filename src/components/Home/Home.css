@@ -16,6 +16,27 @@
     align-items: center;
     position: fixed;
     height: 100vh;
+    top: 0;
+    z-index: 100;
+    
+}
+
+.profile-section-link {
+    text-decoration: none; /* Removes underline */
+    color: inherit;        /* Keeps your original text color */
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.profile-section-link:hover {
+    transform: scale(1.02); /* Subtle feedback when hovering over the profile */
+}
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    text-align: center;
 }
 
 .avatar {
@@ -23,17 +44,29 @@
     height: 110px;
     border-radius: 50%;
     border: 4px solid #fff;
+    object-fit: cover;
     margin-bottom: 15px;
 }
 
+.profile-section h3 {
+    color: white;           
+    font-size: 1.1rem;
+    margin: 0;
+}
 .side-menu {
     width: 100%;
     margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-left: 20px;
+    padding-right: 20px; 
+    box-sizing: border-box;
 }
 
 .menu-btn {
     display: block;
-    width: 100%;
+    width: 80%;
     padding: 12px;
     margin-bottom: 15px;
     text-align: center;
@@ -43,16 +76,34 @@
     border-radius: 12px;
     font-weight: 500;
     transition: 0.3s;
+    background: rgba(255, 255, 255, 0.05); /* More transparent for a clearer effect */
+    backdrop-filter: blur(1px);           /* Less blur for a clearer effect */
+    -webkit-backdrop-filter: blur(2px);   /* For Safari compatibility */
 }
 
-.menu-btn.active, .menu-btn:hover {
+/*.menu-btn.active, .menu-btn:hover {
     background-color: white;
+    color: #335C59;
+}
+*/
+.menu-btn.active {
+    background: white;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    color: #335C59;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.menu-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
     color: #335C59;
 }
 
 /* Main Content Styling */
 .content-area {
-    margin-left: 260px;
+    margin-left: 150px;
     flex: 1;
     padding: 40px 60px;
 }
@@ -215,6 +266,7 @@
     height: 25px;
     border-radius: 5px;
     cursor: pointer;
+    z-index: 5;
 }
 
 .star-rating {
