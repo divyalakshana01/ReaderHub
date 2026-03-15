@@ -19,25 +19,21 @@ const Home = () => {
         { id: 8, title: "Company of One", rating: 5, cover: "https://images-na.ssl-images-amazon.com/images/I/71u96Uv-C0L.jpg" },
     ];
 
+    const currentlyReading = [
+        { id: 1, title: "Soul River", cover: "https://images-na.ssl-images-amazon.com/images/I/81t2CV8NdfL.jpg", progress: 40 },
+        { id: 2, title: "Atomic Habits", cover: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg", progress: 65 }
+    ];
+
+    const searchResults = discoverBooks.filter(book => 
+        book.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="home-layout">
-            {/* --- SIDEBAR --- */}
-            <aside className="sidebar">
-                <div className="profile-section">
-                    <img src="https://i.pravatar.cc/150?u=selena" alt="Selena" className="avatar" />
-                    <h3>Hi Selena!</h3>
-                </div>
-                <nav className="side-menu">
-                    <Link to="/home" className="menu-btn active">Home</Link>
-                    <Link to="/library" className="menu-btn">My Library</Link>
-                    <Link to="/events" className="menu-btn">Events</Link>
-                    <Link to="/login" className="menu-btn logout">Log Out</Link>
-                </nav>
-            </aside>
 
             {/* --- MAIN CONTENT ---*/}
             <main className="content-area">
-                <div className="search-wrapper">
+                <div className="search-wrapper" style={{ position: 'relative' }}>
                     <input
                         type="text"
                         placeholder="Search for your new adventure..."
@@ -46,6 +42,29 @@ const Home = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <FaSearch className="search-icon" />
+                    {searchTerm && (
+                        <div className="search-dropdown" style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            width: '100%',
+                            backgroundColor: '#fff',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                            zIndex: 1000,
+                            maxHeight: '200px',
+                            overflowY: 'auto'
+                        }}>
+                            {searchResults.length > 0 ? searchResults.map(book => (
+                                <div key={book.id} style={{ padding: '10px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#333' }}>
+                                    {book.title}
+                                </div>
+                            )) : (
+                                <div style={{ padding: '10px', color: '#888' }}>No results found</div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="quote-card">
@@ -56,15 +75,17 @@ const Home = () => {
                 <section className="dashboard-section">
                     <h3>Currently Reading</h3>
                     <div className="currently-reading-grid">
-                        <div className="current-book">
-                            <div className="book -img-container">
-                                <img src="https://images-na.ssl-images-amazon.com/images/I/81t2CV8NdfL.jpg" alt="Soul River" />
-                                <button className="remove-btn">×</button>
+                        {currentlyReading.map(book => (
+                            <div key={book.id} className="current-book">
+                                <div className="book-img-container">
+                                    <img src={book.cover} alt={book.title} />
+                                    <button className="remove-btn">×</button>
+                                </div>
+                                <div className="progress-container">
+                                    <div className="progress-fill" style={{ width: `${book.progress}%` }}></div>
+                                </div>
                             </div>
-                            <div className="progress-container">
-                                <div className="progress-fill" style={{width: '40%' }}></div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </section>
 
