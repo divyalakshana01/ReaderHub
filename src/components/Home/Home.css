@@ -1,14 +1,18 @@
-/* Layout Container */
 .home-layout {
     display: flex;
-    background-color: #F9F7F2; /* Cream background from image */
+    background-color: #F9F7F2;
     min-height: 100vh;
+    position: relative;
 }
 
-/* Sidebar Styling */
+.mobile-header {
+    display: none; 
+}
+
+/* Default state (Desktop) */
 .sidebar {
     width: 260px;
-    background-color: #335C59; /* Your Library Green */
+    background-color: #335C59;
     color: white;
     padding: 50px 20px;
     display: flex;
@@ -17,10 +21,55 @@
     position: fixed;
     height: 100vh;
     top: 0;
-    z-index: 100;
-    
+    left: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
 }
 
+.content-area {
+    margin-left: 150px; /* Corrected margin */
+    flex: 1;
+    padding: 40px 60px;
+    transition: margin-left 0.3s ease-in-out;
+
+}
+
+/* Tablet and Mobile */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 1000;
+    }
+
+    .sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .content-area {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .mobile-header {
+        display: flex;
+        justify-content: flex-end;
+        padding: 15px;
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 1001; 
+    }
+
+    .hamburger-menu {
+        background: #335C59;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 8px;
+    }
+}
 .profile-section-link {
     text-decoration: none; /* Removes underline */
     color: inherit;        /* Keeps your original text color */
@@ -81,11 +130,6 @@
     -webkit-backdrop-filter: blur(2px);   /* For Safari compatibility */
 }
 
-/*.menu-btn.active, .menu-btn:hover {
-    background-color: white;
-    color: #335C59;
-}
-*/
 .menu-btn.active {
     background: white;
     border: 1px solid rgba(255, 255, 255, 0.8);
@@ -99,13 +143,6 @@
     background: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
     color: #335C59;
-}
-
-/* Main Content Styling */
-.content-area {
-    margin-left: 150px;
-    flex: 1;
-    padding: 40px 60px;
 }
 
 .search-wrapper {
@@ -131,7 +168,6 @@
     font-size: 1.2rem;
 }
 
-/* Quote Card */
 .quote-card {
     background: #FFFBF5;
     border: 1px solid #F1E9D4;
@@ -154,7 +190,6 @@
     color: #555;
 }
 
-/* Book Sections */
 .dashboard-section h3 {
     margin-bottom: 20px;
     font-size: 1.3rem;
@@ -198,7 +233,6 @@
     color: #335C59
 }
 
-/* Progress Bar */
 .progress-container {
     height: 8px;
     background: #e0e0e0;
@@ -212,7 +246,6 @@
     background: #335C59;
 }
 
-/* Discover Grid */
 .genre-tags {
     display: flex;
     gap: 15px;
