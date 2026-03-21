@@ -7,6 +7,7 @@ import Signup from './components/Signup/Signup';
 import Home from './components/Home/Home';
 import Profile from './components/Profile/Profile';
 import Library from './components/Library/Library';
+import EventHub from './components/EventHub/EventHub';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/events" element={<EventHub />} />          
         </Route>
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>      
