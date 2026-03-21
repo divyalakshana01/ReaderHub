@@ -2,8 +2,9 @@
     padding: 40px;
     background-color: #fdfaf5; /* Cream background from images */
     min-height: 100vh;
-    min-width: 90vw;
-    margin-left: 150px;
+    min-width: 100vw;
+    margin-left: 40px;
+    
 }
 
 .library-header { 
