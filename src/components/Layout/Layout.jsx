@@ -41,7 +41,7 @@ const Layout = () => {
                     </div>
                 </NavLink>
                 <nav className="side-menu">
-                    <NavLink to="/home" className="menu-btn">Home</NavLink>
+                    <NavLink to="/home" className={({ isActive }) => isActive ? "menu-btn active" : "menu-btn"}>Home</NavLink>
                     <NavLink to="/library" className="menu-btn">My Library</NavLink>
                     <NavLink to="/events" className="menu-btn">Events</NavLink>
                     

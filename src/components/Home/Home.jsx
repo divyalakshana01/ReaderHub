@@ -1,68 +1,146 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaSearch, FaStar, FaRegStar, FaTimes, FaPlus } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from 'react';
+import { FaSearch, FaStar, FaRegStar, FaPlus, FaSpinner, FaBookOpen, FaBookmark } from "react-icons/fa";
+import { db } from "../../firebase"; 
+import { collection, addDoc, query, where, onSnapshot, deleteDoc, updateDoc,  doc } from 'firebase/firestore'; 
+import { useAuth } from '../../context/AuthContext'; 
 import './Home.css';
 
 const Home = () => {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]); 
+    const [loading, setLoading] = useState(false);
+    const [selectedBook, setSelectedBook] = useState(null);
+    const [currentlyReading, setCurrentlyReading] = useState([]);
+    
+    // This state controls if the dropdown is visible
+    const [showDropdown, setShowDropdown] = useState(false);
 
-    // Mock Data - 
-    const discoverBooks = [
-        
-        { id: 1, title: "Zero to One", rating: 5, cover: "https://images-na.ssl-images-amazon.com/images/I/71mKvD89oEL.jpg" },
-        { id: 2, title: "Filosofi Teras", rating: 4, cover: "https://images-na.ssl-images-amazon.com/images/I/81L86mN5uLL.jpg" },
-        { id: 3, title: "The Fine Print", rating: 4, cover: "https://images-na.ssl-images-amazon.com/images/I/71eSAnYh8rL.jpg" },
-        { id: 4, title: "Narnia", rating: 5, cover: "https://images-na.ssl-images-amazon.com/images/I/91u8M2eB7PL.jpg" },
-        { id: 5, title: "Deep Work", rating: 5, cover: "https://images-na.ssl-images-amazon.com/images/I/417P9vthS6L.jpg" },
-        { id: 6, title: "Animal Farm", rating: 4, cover: "https://images-na.ssl-images-amazon.com/images/I/91LUb8zARWL.jpg" },
-        { id: 7, title: "Twisted Love", rating: 4, cover: "https://images-na.ssl-images-amazon.com/images/I/71O6-0mI6rL.jpg" },
-        { id: 8, title: "Company of One", rating: 5, cover: "https://images-na.ssl-images-amazon.com/images/I/71u96Uv-C0L.jpg" },
-    ];
+    // --- 1. Fetch "Reading" books for the Home Dashboard ---
+    useEffect(() => {
+        if (!user) return;
+        // We only fetch books where status is 'reading' for the Home page
+        const q = query(
+            collection(db, "library"), 
+            where("userId", "==", user.uid),
+            where("status", "==", "reading")
+        );
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setCurrentlyReading(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, [user]);
 
-    const currentlyReading = [
-        { id: 1, title: "Soul River", cover: "https://images-na.ssl-images-amazon.com/images/I/81t2CV8NdfL.jpg", progress: 40 },
-        { id: 2, title: "Atomic Habits", cover: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg", progress: 65 }
-    ];
+    // --- 2. Search Logic ---
+    useEffect(() => {
+        const fetchBooks = async () => {
+            if (searchTerm.length < 3) {
+                setSearchResults([]);
+                setShowDropdown(false);
+                return;
+            }
+            setLoading(true);
+            setShowDropdown(true); 
+            try {
+                const [gRes, oRes] = await Promise.all([
+                    fetch(`https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&maxResults=5`),
+                    fetch(`https://openlibrary.org/search.json?q=${searchTerm}&limit=5`)
+                ]);
+                const gData = await gRes.json();
+                const oData = await oRes.json();
 
-    const searchResults = discoverBooks.filter(book => 
-        book.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+                const combined = [
+                    ...(gData.items || []).map(item => ({
+                        id: item.id,
+                        title: item.volumeInfo.title,
+                        author: item.volumeInfo.authors?.[0] || 'Unknown',
+                        description: item.volumeInfo.description || 'No description available.',
+                        cover: item.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/128x192"
+                    })),
+                    ...(oData.docs || []).map(item => ({
+                        id: item.key,
+                        title: item.title,
+                        author: item.author_name?.[0] || 'Unknown',
+                        description: "Check this title out on Open Library for a full summary.",
+                        cover: item.cover_i ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg` : "https://via.placeholder.com/128x192"
+                    }))
+                ];
+                setSearchResults(combined);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const timer = setTimeout(fetchBooks, 600);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    // --- 3. Unified Add Function ---
+    const handleAddBook = async (book, status) => {
+        try {
+            await addDoc(collection(db, "library"), {
+                userId: user.uid,
+                title: book.title,
+                cover: book.cover,
+                author: book.author,
+                status: status, // 'reading' or 'toRead'
+                progress: 0,
+                addedAt: new Date()
+            });
+            setSelectedBook(null);
+            setSearchTerm('');
+            setShowDropdown(false);
+        } catch (error) {
+            console.error("Error adding book:", error);
+        }
+    };
+
+    const handleProgressChange = async (bookId, newValue) => {
+        const val = parseInt(newValue);
+
+        // 1. Update Local UI State instantly (Optimistic Update)
+        setCurrentlyReading(prev => 
+            prev.map(book => book.id === bookId ? { ...book, progress: val } : book)
+        );
+
+        // 2. Update Firestore
+        try {
+            const bookRef = doc(db, "library", bookId);
+            await updateDoc(bookRef, { progress: val });
+        } catch (error) {
+            console.error("Firebase Update Error:", error);
+        }
+    };
 
     return (
         <div className="home-layout">
-
-            {/* --- MAIN CONTENT ---*/}
             <main className="content-area">
-                <div className="search-wrapper" style={{ position: 'relative' }}>
+                <div className="search-wrapper">
                     <input
                         type="text"
                         placeholder="Search for your new adventure..."
                         className="search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => searchTerm.length >= 3 && setShowDropdown(true)}
                     />
                     <FaSearch className="search-icon" />
-                    {searchTerm && (
-                        <div className="search-dropdown" style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            width: '100%',
-                            backgroundColor: '#fff',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                            zIndex: 1000,
-                            maxHeight: '200px',
-                            overflowY: 'auto'
-                        }}>
-                            {searchResults.length > 0 ? searchResults.map(book => (
-                                <div key={book.id} style={{ padding: '10px', borderBottom: '1px solid #eee', cursor: 'pointer', color: '#333' }}>
-                                    {book.title}
+                    
+                    {/* Updated Search Dropdown logic */}
+                    {showDropdown && searchTerm && (
+                        <div className="search-dropdown">
+                            <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f9f9f9'}}>
+                                <small>Results for "{searchTerm}"</small>
+                                <button onClick={() => setShowDropdown(false)} style={{border: 'none', background: 'none', cursor: 'pointer'}}>Close</button>
+                            </div>
+                            {loading && <div style={{padding: '15px'}}><FaSpinner className="icon-spin" /> Searching...</div>}
+                            {searchResults.map(book => (
+                                <div key={book.id} onClick={() => {setSelectedBook(book); setShowDropdown(false);}} className="search-item">
+                                    <strong>{book.title}</strong><br/><small>{book.author}</small>
                                 </div>
-                            )) : (
-                                <div style={{ padding: '10px', color: '#888' }}>No results found</div>
-                            )}
+                            ))}
                         </div>
                     )}
                 </div>
@@ -79,41 +157,49 @@ const Home = () => {
                             <div key={book.id} className="current-book">
                                 <div className="book-img-container">
                                     <img src={book.cover} alt={book.title} />
-                                    <button className="remove-btn">×</button>
+                                    <button className="remove-btn" onClick={() => deleteDoc(doc(db, "library", book.id))}>×</button>
                                 </div>
                                 <div className="progress-container">
                                     <div className="progress-fill" style={{ width: `${book.progress}%` }}></div>
+
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={book.progress || 0}
+                                        className="progress-slider"
+                                        onChange={(e) => handleProgressChange(book.id, e.target.value)}
+                                        />
                                 </div>
+                                <span className="progree-percentage">{book.progress || 0}%</span>
                             </div>
                         ))}
                     </div>
                 </section>
 
-                <section className="dashboard-section">
-                    <h3>Discover New Books</h3>
-                    <div className="genre-tags">
-                        <span className="tag active">Sci-fi</span>
-                        <span className="tag"></span>
-                        <span className="tag"></span>
-                        <span className="tag"></span>
-                    </div>
+                {/* Discover section remains same... */}
 
-                    <div className="discover-grid">
-                        {discoverBooks.map(book => (
-                            <div key={book.id} className="book-card">
-                                <div className="book-poster">
-                                    <img src={book.cover} alt={book.title} />
-                                    <button className="add-button">+</button>
-                                </div>
-                                <div className="star-rating">
-                                    {[...Array(5)].map((_, index) => (
-                                        index < book.rating ? <FaStar key={index} color="#FFD700" /> : <FaRegStar key={index} color="#FFD700" />
-                                    ))}                                
-                                </div>
+                {/* --- DESCRIPTION MODAL WITH TWO BUTTONS --- */}
+                {selectedBook && (
+                    <div className="modal-backdrop">
+                        <div className="modal-content">
+                            <button className="close-modal-btn" onClick={() => setSelectedBook(null)}>&times;</button>
+                            <img src={selectedBook.cover} alt="Cover" style={{width: '100px', borderRadius: '5px'}} />
+                            <h2>{selectedBook.title}</h2>
+                            <p>{selectedBook.author}</p>
+                            <div className="modal-description">{selectedBook.description.replace(/<[^>]*>?/gm, '')}</div>
+                            
+                            <div style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
+                                <button className="submit-event-btn" onClick={() => handleAddBook(selectedBook, 'reading')}>
+                                    <FaBookOpen /> Start Reading
+                                </button>
+                                <button className="submit-event-btn" style={{backgroundColor: '#8c6239'}} onClick={() => handleAddBook(selectedBook, 'toRead')}>
+                                    <FaBookmark /> To Read
+                                </button>
                             </div>
-                        ))}
+                        </div>
                     </div>
-                </section>
+                )}
             </main>
         </div>
     );

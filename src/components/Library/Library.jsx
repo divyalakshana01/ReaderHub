@@ -1,34 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlusCircle, FaTrashAlt, FaClock } from "react-icons/fa";
+import { db } from "../../firebase";
+import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { useAuth } from '../../context/AuthContext';
 import './Library.css';
 
-// Mock Data structure for Firestore books
-const libraryBooks = [
-  // Books in 'reading' section
-  { id: 'b1', title: "Soul River", cover: "path/to/soul-river.jpg", status: 'reading' },
-  { id: 'b2', title: "The Two Towers", cover: "path/to/two-towers.jpg", status: 'reading' },
-  { id: 'b3', title: "Stupore e Tremore", cover: "path/to/stupore.jpg", status: 'reading' },
-  // Books in 'toRead' section
-  { id: 'b4', title: "Zero to One", cover: "path/to/zero-one.jpg", status: 'toRead' },
-  { id: 'b5', title: "The Fine Print", cover: "path/to/fine-print.jpg", status: 'toRead' },
-];
-
 const Library = () => {
-  // Filter books into their categories
-  const readingBooks = libraryBooks.filter(b => b.status === 'reading');
-  const toReadBooks = libraryBooks.filter(b => b.status === 'toRead');
-  
-  // Completed books would have status === 'completed'
+  const { user } = useAuth();
+  const [books, setBooks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const BookCard = ({ book, showAdd, showStatus }) => (
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, "library"), where("userId", "==", user.uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setBooks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const readingBooks = books.filter(b => b.status === 'reading');
+  const toReadBooks = books.filter(b => b.status === 'toRead');
+  const completedBooks = books.filter(b => b.status === 'completed');
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this book from library?")) {
+      await deleteDoc(doc(db, "library", id));
+    }
+  };
+
+  const moveToReading = async (id) => {
+    await updateDoc(doc(db, "library", id), { status: 'reading' });
+  };
+
+  const BookCard = ({ book, showAdd }) => (
     <div className="book-card">
       <div className="book-card-header">
         <FaClock className="icon-muted" title="Update status" />
-        {showAdd && <FaPlusCircle className="icon-action add" title="Add to currently reading" />}
-        <FaTrashAlt className="icon-action delete" title="Delete book" />
+        {showAdd && <FaPlusCircle className="icon-action add" onClick={() => moveToReading(book.id)} title="Start Reading" />}
+        <FaTrashAlt className="icon-action delete" onClick={() => handleDelete(book.id)} title="Delete book" />
       </div>
       <img src={book.cover} alt={book.title} className="library-book-cover" />
-      {showStatus && <span className="completed-check">✓</span>}
+      <p style={{fontSize: '10px', marginTop: '5px', fontWeight: 'bold'}}>{book.title}</p>
     </div>
   );
 
@@ -37,38 +50,33 @@ const Library = () => {
       <header className="library-header">
         <h1>My Library</h1>
         <div className="search-bar-library">
-          <input type="text" placeholder="Search for your new adventure..." />
-          {/* Add a search icon here if needed */}
+          <input 
+            type="text" 
+            placeholder="Search your library..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </header>
 
-      {/* --- Reading Section --- */}
       <section className="library-status-section">
-        <h2 className="status-label reading">Reading</h2>
+        <h2 className="status-label reading">Reading ({readingBooks.length})</h2>
         <div className="book-status-grid">
-          {readingBooks.map(book => (
-            <BookCard key={book.id} book={book} />
-          ))}
+          {readingBooks.map(book => <BookCard key={book.id} book={book} />)}
         </div>
       </section>
 
-      {/* --- To Read Section --- */}
       <section className="library-status-section">
-        <h2 className="status-label to-read">To Read</h2>
+        <h2 className="status-label to-read">To Read ({toReadBooks.length})</h2>
         <div className="book-status-grid">
-          {toReadBooks.map(book => (
-            <BookCard key={book.id} book={book} showAdd />
-          ))}
+          {toReadBooks.map(book => <BookCard key={book.id} book={book} showAdd />)}
         </div>
       </section>
 
-      {/* --- Completed Section --- */}
       <section className="library-status-section">
-        <h2 className="status-label completed">Completed</h2>
-        <div className="book-status-grid completed-grid">
-          {/* Mock Completed books */}
-          <div className="book-card empty-completed"></div>
-          <div className="book-card empty-completed"></div>
+        <h2 className="status-label completed">Completed ({completedBooks.length})</h2>
+        <div className="book-status-grid">
+          {completedBooks.map(book => <BookCard key={book.id} book={book} />)}
         </div>
       </section>
     </div>
