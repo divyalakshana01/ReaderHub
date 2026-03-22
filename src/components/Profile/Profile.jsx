@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import  { FaPencilAlt, FaCheckCircle } from "react-icons/fa";
+import { FaPencilAlt, FaCheckCircle } from "react-icons/fa";
+import { useAuth } from '../../context/AuthContext'; // 1. Import useAuth
 import './Profile.css';
 
 const Profile = () => {
+    const { user } = useAuth(); // 2. Get user data
     const [theme, setTheme] = useState('light');
 
     const milestones = [
@@ -14,17 +16,20 @@ const Profile = () => {
 
     return (
         <div className={`profile-container ${theme}-mode`}>
-            {/* --- User Header --- */}
             <div className="profile-header">
                 <div className="avatar-wrapper">
-                    <img src="https://via.placeholder.com/150" alt="Profile" className="profile-img" />
+                    <img 
+                        src={user?.photoURL || "https://via.placeholder.com/150"} 
+                        alt="Profile" 
+                        className="profile-img" 
+                    />
                     <button className="edit-btn-float"><FaPencilAlt /></button>
                 </div>  
-                <h2 className="user-name">Jacoz Selena</h2>
-            <p className="join-info">Member since February 2026</p>              
+                {/* 3. Dynamic Name */}
+                <h2 className="user-name">{user?.displayName || "Reader Hub User"}</h2>
+                {/* 4. Display join date if you store it, or static text for now */}
+                <p className="join-info">Member since {user?.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "February 2026"}</p>               
             </div>
-
-            {/* --- Settings Form --- */}
 
             <div className="settings-form">
                 <h3 className="section-title">Account Settings</h3>
@@ -32,7 +37,8 @@ const Profile = () => {
                 <div className="field-group">
                     <label>Display Name</label>
                     <div className="input-row">
-                        <input type="text" defaultValue="Jacoz Selena" />
+                        {/* 5. Set value to user.displayName */}
+                        <input type="text" defaultValue={user?.displayName || ""} />
                         <FaPencilAlt className="icon-muted" />
                     </div>
                 </div>
@@ -40,13 +46,14 @@ const Profile = () => {
                 <div className="field-group">
                     <label>Email</label>
                     <div className="input-row">
-                        <input type="email" defaultValue="jacozselena@gmail.com" />
+                        {/* 6. Set value to user.email */}
+                        <input type="email" defaultValue={user?.email || ""} disabled />
                         <FaPencilAlt className="icon-muted" />
                     </div>
                 </div>                
             </div>
 
-            {/* --- Theme Selector --- */}
+            {/* --- Rest of the code (Theme Selector & Milestones) stays the same --- */}
             <div className="theme-selector">
                 <h3 className="section-title">Page Theme</h3>
                 <div className="theme-cards">
@@ -82,7 +89,6 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* --- Milestones --- */}
             <div className="milestones-area">
                 <h3 className="section-title">Milestones</h3>
                 <div className="milestone-grid">
