@@ -5,7 +5,10 @@ import { collection, addDoc, query, where, onSnapshot, deleteDoc, updateDoc,  do
 import { useAuth } from '../../context/AuthContext'; 
 import './Home.css';
 
+
+
 const Home = () => {
+    const searchRef = useRef(null);
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]); 
@@ -15,6 +18,24 @@ const Home = () => {
     
     // This state controls if the dropdown is visible
     const [showDropdown, setShowDropdown] = useState(false);
+
+    // --- NEW: CLICK OUTSIDE LOGIC ---
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Check if searchRef exists and if the click happened OUTSIDE of it
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        // Add event listener when component mounts
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        // Clean up event listener when component unmounts
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     // --- 1. Fetch "Reading" books for the Home Dashboard ---
     useEffect(() => {
@@ -100,24 +121,35 @@ const Home = () => {
     const handleProgressChange = async (bookId, newValue) => {
         const val = parseInt(newValue);
 
-        // 1. Update Local UI State instantly (Optimistic Update)
+        // 1. Update Local UI State instantly
         setCurrentlyReading(prev => 
-            prev.map(book => book.id === bookId ? { ...book, progress: val } : book)
+            prev.map(b => b.id === bookId ? { ...b, progress: val } : b)
         );
 
-        // 2. Update Firestore
         try {
             const bookRef = doc(db, "library", bookId);
-            await updateDoc(bookRef, { progress: val });
+        
+            if (val === 100) {
+                // Automatically move to Completed
+                await updateDoc(bookRef, { 
+                    progress: 100, 
+                    status: 'completed',
+                    completedAt: new Date() 
+                });
+                alert("Congratulations! Book moved to Completed.");
+            } else {
+                // Normal progress update
+                await updateDoc(bookRef, { progress: val });
+            }
         } catch (error) {
-            console.error("Firebase Update Error:", error);
+            console.error("Error updating progress:", error);
         }
     };
 
     return (
         <div className="home-layout">
             <main className="content-area">
-                <div className="search-wrapper">
+                <div className="search-wrapper" ref={searchRef}>
                     <input
                         type="text"
                         placeholder="Search for your new adventure..."
@@ -132,8 +164,7 @@ const Home = () => {
                     {showDropdown && searchTerm && (
                         <div className="search-dropdown">
                             <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f9f9f9'}}>
-                                <small>Results for "{searchTerm}"</small>
-                                <button onClick={() => setShowDropdown(false)} style={{border: 'none', background: 'none', cursor: 'pointer'}}>Close</button>
+                                Results for "{searchTerm}"                                
                             </div>
                             {loading && <div style={{padding: '15px'}}><FaSpinner className="icon-spin" /> Searching...</div>}
                             {searchResults.map(book => (
