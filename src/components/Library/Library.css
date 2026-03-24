@@ -1,10 +1,9 @@
 .library-page {
     padding: 40px;
-    background-color: #fdfaf5; /* Cream background from images */
+    background-color: #fdfaf5; 
     min-height: 100vh;
     min-width: 100vw;
     margin-left: 40px;
-    
 }
 
 .library-header { 
@@ -31,7 +30,7 @@
     text-align: left;
 }
 
-/* Status Labels (Reading, To Read, etc.) */
+/* Status Labels */
 .status-label {
     display: inline-block;
     padding: 8px 15px;
@@ -40,18 +39,16 @@
     color: white;
     margin-bottom: 15px;
     font-family: sans-serif;
-    text-align: left; /* Aligns the text to the left */
-    
 }
-.status-label.reading { background-color: #2d5a27; } /* Teal from sidebar */
-.status-label.to-read { background-color: #8c6239; } /* Brown */
-.status-label.completed { background-color: #c4a737; } /* Gold/Yellow */
+.status-label.reading { background-color: #2d5a27; } 
+.status-label.to-read { background-color: #8c6239; } 
+.status-label.completed { background-color: #c4a737; } 
 
 /* Book Cards & Grid */
 .book-status-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(4, max-content);
+    gap: 20px;
 }
 
 .book-card {
@@ -61,9 +58,15 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     position: relative;
     overflow: hidden;
+    min-height: 240px;
+    width: 100px;       /* Fixed width */
+    height: 150px;      /* Fixed height ensures all cards match exactly */
+    flex-shrink: 0;
+    /* Removed transition to prevent slider lag */
 }
 
 .library-book-cover {
@@ -77,18 +80,108 @@
 .book-card-header {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
     width: 100%;
     margin-bottom: 10px;
+    height: 20px;
 }
 
-.icon-action { cursor: pointer; font-size: 1rem; }
-.icon-action.add { color: #1a1a1a; }
-.icon-action.delete { color: #cc0000; }
-.icon-muted { color: #888; }
+.action-icons {
+    display: flex;
+    gap: 12px;
+}
 
-/* Completed section special styling */
-.empty-completed {
-    background-color: #FFFFFF;
-    height: 190px;
+.icon-action { 
+    cursor: pointer; 
+    font-size: 1.1rem; 
+    transition: color 0.2s ease;
+}
+
+.icon-action.add { color: #335C59; }
+.icon-action.reset { color: #8c6239; }
+.icon-action.delete { color: #cc0000; }
+
+/* Progress Section - Optimized for smoothness */
+/* 1. The Wrapper (matches .progress-container from Home) */
+.library-progress-container {
+    position: relative;
+    height: 12px; /* Thicker for better visibility */
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-top: 12px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden; /* Clips the fill bar to rounded corners */
+}
+
+/* 2. The Fill Bar (The teal part that grows) */
+.library-progress-fill {
+    position: absolute;
+    height: 100%;
+    background: #335C59; /* Your theme teal */
+    border-radius: 10px;
+    left: 0;
+    z-index: 1; /* Sits behind the slider handle */
+    transition: width 0.1s ease-out; /* Smooth but fast sync */
+}
+
+/* 3. The Slider (The invisible track with the visible handle) */
+.library-progress-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent; /* Makes default track invisible */
+    cursor: pointer;
+    z-index: 5; /* Stays on top so you can grab it */
+    margin: 0;
+    outline: none;
+}
+
+/* 4. The Thumb (The grabby circle) */
+.library-progress-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #335C59;
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.library-progress-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #335C59;
+    border: 2px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+/* 5. The Percentage Text */
+.library-percentage {
+    display: block;
+    font-size: 0.75rem;
+    color: #555;
+    text-align: right;
+    margin-top: 4px;
+    font-weight: bold;
+    width: 100%;
+}
+.library-book-title {
+    font-size: 11px;
+    margin-top: 8px;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 5px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
