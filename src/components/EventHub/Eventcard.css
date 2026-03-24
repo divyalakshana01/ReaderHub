@@ -47,15 +47,20 @@
   object-fit: cover;
 }
 
-.event-card-details {
-  padding: 1rem;
-  flex-grow: 1; /* Allows details to fill space */
+
+.event-card-details p {
+    font-size: 0.85rem;
+    margin: 4px 0;
+    color: #555;
 }
 
 .event-card-name {
-  font-size: 1.25rem;
-  margin: 0 0 0.5rem 0;
-  color: var(--color-text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #335C59;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .event-card-host,
@@ -66,6 +71,16 @@
   color: var(--color-text-secondary);
 }
 
+.event-card-datetime {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #eee;
+}
+
+.event-card-date, .event-card-time {
+    font-weight: 600;
+    color: #335C59 !important;
+}
 .event-card-rsvp-btn {
   display: block;
   width: calc(100% - 2rem);
@@ -89,4 +104,54 @@
   background-color: var(--color-accent);
   color: #335C59;
   border-color: var(--color-accent);
+}
+
+.event-grid {
+  display: grid;
+  /* This forces exactly 4 equal columns */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 20px;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+/* Admin Controls Overlay */
+.admin-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
+.admin-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: white !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  padding: 0;;
+}
+
+.admin-btn.edit {
+  background-color: #335C59; /* Theme Teal */
+  
+}
+
+.admin-btn.delete {
+  background-color: #e74c3c; /* Soft Red */
+  color: white;
+}
+
+.admin-btn:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
 }
