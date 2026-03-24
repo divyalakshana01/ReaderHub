@@ -7,10 +7,11 @@ import { collection, query, where, onSnapshot, doc, getDoc, setDoc } from 'fireb
 import './Profile.css';
 
 const Profile = () => {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const [theme, setTheme] = useState('light');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [completedCount, setCompletedCount] = useState(0);
+    const [newDisplayName, setNewDisplayName] = useState(user?.displayName || "");
 
     // Generate 20 diverse avatars using DiceBear API
     const avatarList = Array.from({ length: 20 }, (_, i) => 
@@ -75,7 +76,18 @@ const Profile = () => {
         }
     };
 
-   
+    const handleNameChange = async () => {
+        if (newDisplayName.trim() === "" || newDisplayName === user.displayName) {
+            return; // Do nothing if name is empty or unchanged
+        }
+        try {
+            await updateProfile(user, { displayName: newDisplayName });
+            setUser({ ...user, displayName: newDisplayName });
+            alert("Display name updated successfully!");
+        } catch (error) {
+            console.error("Error updating display name:", error);
+        }
+    };
 
     return (
         <div className={`profile-container ${theme}-mode`}>
@@ -124,8 +136,14 @@ const Profile = () => {
                 <div className="field-group">
                     <label>Display Name</label>
                     <div className="input-row">
-                        <input type="text" defaultValue={user?.displayName || ""} />
-                        <FaPencilAlt className="icon-muted" />
+                        <input 
+                            type="text" 
+                            value={newDisplayName} 
+                            onChange={(e) => setNewDisplayName(e.target.value)} 
+                        />
+                        <button onClick={handleNameChange} className="save-btn">
+                            <FaCheck />
+                        </button>
                     </div>
                 </div>
 
